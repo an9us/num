@@ -69,8 +69,8 @@ export class Hpolo011Component implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    const video: HTMLVideoElement = document.getElementById('background-video') as HTMLVideoElement;
-    const fallbackImage: HTMLImageElement = document.getElementById('fallback-image') as HTMLImageElement;
+    const video = document.getElementById('background-video') as HTMLVideoElement;
+    const fallbackImage = document.getElementById('fallback-image') as HTMLImageElement;
 
     const showFallback = () => {
       video.style.display = 'none';
@@ -86,32 +86,21 @@ export class Hpolo011Component implements OnInit {
         showFallback();
       }
     };
-    setVideoSource();
 
-    // const checkLowPowerMode = () => {
-    //   // 类型断言为 `Navigator & { getBattery: () => Promise<BatteryManager> }`
-    //   const batteryPromise = (navigator as Navigator & { getBattery?: () => Promise<BatteryManager> }).getBattery ? (navigator as Navigator & { getBattery: () => Promise<BatteryManager> }).getBattery() : Promise.resolve(null);
-
-    //   batteryPromise.then(battery => {
-    //     if (battery && battery.savePower) {
-    //       showFallback();
-    //     } else {
-    //       setVideoSource();
-    //       video.load();
-    //       video.play().catch(showFallback);
-    //     }
-    //   }).catch(showFallback);
-    // };
-
-    // checkLowPowerMode();
-
-    video.addEventListener('play', () => {
-      if (video.paused) {
+    const checkVideoPlayback = () => {
+      setVideoSource();
+      video.load();
+      video.play().catch(() => {
         showFallback();
-      }
-    });
+      });
+    };
 
+    // Check video playback and handle fallback
+    checkVideoPlayback();
+
+    // Handle fallback if video is paused or errors
     video.addEventListener('pause', showFallback);
-    video.onerror = showFallback;
+    video.addEventListener('error', showFallback);
+  
   }
 }
