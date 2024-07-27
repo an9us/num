@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { trigger, state, style, transition, animate , query, stagger} from '@angular/animations';
-
+import { trigger, state, style, transition, animate, query, stagger } from '@angular/animations';
 
 @Component({
   selector: 'app-hpolo011',
@@ -12,7 +11,7 @@ import { trigger, state, style, transition, animate , query, stagger} from '@ang
     trigger('fadeInUp', [
       state('void', style({
         opacity: 0,
-        transform: 'translateY(100px)'
+        transform: 'translateY(50px)'
       })),
       transition('void => *', [
         animate('800ms ease-out', style({
@@ -24,9 +23,9 @@ import { trigger, state, style, transition, animate , query, stagger} from '@ang
     trigger('textAnimation', [
       transition('* => *', [
         query('span', [
-          style({ opacity: 0, transform: 'translateY(20px)' }), // 初始状态
+          style({ opacity: 0, transform: 'translateY(20px)' }), // 初期状態
           stagger(100, [
-            animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' })) // 结束状态
+            animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' })) // 終了状態
           ])
         ])
       ])
@@ -34,7 +33,7 @@ import { trigger, state, style, transition, animate , query, stagger} from '@ang
   ]
 })
 
-export class Hpolo011Component implements OnInit {
+export class Hpolo011Component implements OnInit, AfterViewInit, OnDestroy {
   public observable: Observable<boolean>;
   private observer: Observer<boolean>;
   public fadeInUpState = 'void';
@@ -48,19 +47,96 @@ export class Hpolo011Component implements OnInit {
   public splitText1: string[] = [];
   public splitText2: string[] = [];
   public splitText3: string[] = [];
-  
 
   constructor() {
     this.observable = new Observable<boolean>((observer: any) => this.observer = observer).pipe(share());
   }
 
+  // コンポーネントが初期化されるときに呼ばれる
   ngOnInit(): void {
     this.splitText1 = '第５１期協力会　安全スローガン'.split('');
     this.splitText2 = '高めよう　技術と心と安全意識'.split('');
     this.splitText3 = 'ルールを守り　安全作業'.split('');
   }
-  
-  //画面に表示されたら数字アニメをプレイする
+
+  // ビューが初期化された後に呼ばれる
+  ngAfterViewInit(): void {
+    this.loadResources();
+  }
+
+  // リソースを読み込み、ビデオの再生をチェックする
+  loadResources() {
+    const video = document.getElementById('background-video') as HTMLVideoElement;
+    const fallbackImage = document.getElementById('fallback-image') as HTMLImageElement;
+
+    if (video) {
+      // ビデオが再生できない場合やエラーが発生した場合にフォールバック画像を表示する
+      const showFallback = () => {
+        if (video) video.style.display = 'none';
+        if (fallbackImage) fallbackImage.style.display = 'block';
+      };
+
+      // ビデオのソースを設定する
+      const setVideoSource = () => {
+        if (video.canPlayType('video/webm')) {
+          video.src = 'assets/hpolo/video/herobg-video.webm';
+        } else if (video.canPlayType('video/mp4')) {
+          video.src = 'assets/hpolo/video/herobg-video.mp4';
+        } else {
+          showFallback();
+        }
+      };
+
+      // ビデオ再生のチェックとフォールバック処理
+      const checkVideoPlayback = () => {
+        setVideoSource();
+        video.load();
+        video.play().catch(() => {
+          showFallback();
+        });
+      };
+
+      // ビデオの再生を確認し、フォールバック処理を実行する
+      checkVideoPlayback();
+
+      // ビデオが一時停止またはエラーが発生した場合にフォールバック処理を実行する
+      video.addEventListener('pause', showFallback);
+      video.addEventListener('error', showFallback);
+
+      // すべてのリソースがロードされた後にローディング画面を非表示にする
+      window.addEventListener('load', this.hideLoadingScreen.bind(this));
+    } else {
+      console.error('Video element not found');
+    }
+  }
+
+  // ローディング画面を非表示にする
+  hideLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      loadingScreen.style.opacity = '0';
+      setTimeout(() => {
+        if (loadingScreen) {
+          loadingScreen.style.display = 'none';
+        }
+      }, 1500); // アニメーションが完了した後に非表示にする
+    }
+  }
+
+  // フォールバック画像を表示する
+  showFallback() {
+    const video = document.getElementById('background-video') as HTMLVideoElement;
+    const fallbackImage = document.getElementById('fallback-image') as HTMLImageElement;
+
+    if (video) {
+      video.style.display = 'none';
+    }
+    if (fallbackImage) {
+      fallbackImage.style.display = 'block';
+    }
+  }
+
+  // ビジュアライゼーションが表示されたときにアニメーションをトリガーする
   onVisibilityChange(isVisible: boolean) {
     if (isVisible) {
       this.fadeInUpState = '*';
@@ -68,39 +144,14 @@ export class Hpolo011Component implements OnInit {
     }
   }
 
-  ngAfterViewInit(): void {
+  // コンポーネントが破棄されるときにイベントリスナーをクリーンアップする
+  ngOnDestroy() {
+    // イベントリスナーのクリーンアップ
     const video = document.getElementById('background-video') as HTMLVideoElement;
-    const fallbackImage = document.getElementById('fallback-image') as HTMLImageElement;
-
-    const showFallback = () => {
-      video.style.display = 'none';
-      fallbackImage.style.display = 'block';
-    };
-
-    const setVideoSource = () => {
-      if (video.canPlayType('video/webm')) {
-        video.src = 'assets/hpolo/video/herobg-video.webm';
-      } else if (video.canPlayType('video/mp4')) {
-        video.src = 'assets/hpolo/video/herobg-video.mp4';
-      } else {
-        showFallback();
-      }
-    };
-
-    const checkVideoPlayback = () => {
-      setVideoSource();
-      video.load();
-      video.play().catch(() => {
-        showFallback();
-      });
-    };
-
-    // Check video playback and handle fallback
-    checkVideoPlayback();
-
-    // Handle fallback if video is paused or errors
-    video.addEventListener('pause', showFallback);
-    video.addEventListener('error', showFallback);
-  
+    if (video) {
+      video.removeEventListener('error', this.showFallback.bind(this));
+      video.removeEventListener('pause', this.showFallback.bind(this));
+    }
+    window.removeEventListener('load', this.hideLoadingScreen.bind(this));
   }
 }
