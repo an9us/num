@@ -37,6 +37,8 @@ export class Hpolo011Component implements OnInit, AfterViewInit, OnDestroy {
   public observable: Observable<boolean>;
   private observer: Observer<boolean>;
   public fadeInUpState = 'void';
+  public textAnimationState = 'void';
+  public isLoadingComplete = false; // 新增标志
   public config = {
     animation: 'slide', 
     format: 'd', 
@@ -91,14 +93,20 @@ export class Hpolo011Component implements OnInit, AfterViewInit, OnDestroy {
       const checkVideoPlayback = () => {
         setVideoSource();
         video.load();
-        video.play().catch(() => {
+        video.muted = true; // 静音
+        video.play().catch((error) => {
+          console.error('動画再生時失敗:', error);
           showFallback();
         });
       };
 
       // ビデオの再生を確認し、フォールバック処理を実行する
       checkVideoPlayback();
-
+      
+      // video.addEventListener('ended', () => {
+      //   video.play();
+      // });
+  
       // ビデオが一時停止またはエラーが発生した場合にフォールバック処理を実行する
       video.addEventListener('pause', showFallback);
       video.addEventListener('error', showFallback);
@@ -119,7 +127,15 @@ export class Hpolo011Component implements OnInit, AfterViewInit, OnDestroy {
         if (loadingScreen) {
           loadingScreen.style.display = 'none';
         }
-      }, 1500); // アニメーションが完了した後に非表示にする
+        this.isLoadingComplete = true; // 设置加载完成标志
+        this.triggerTextAnimation(); // 触发文本动画
+      }, 2000); // アニメーションが完了した後に非表示にする
+    }
+  }
+  // テキストアニメーションをトリガーする
+  triggerTextAnimation() {
+    if (this.isLoadingComplete) {
+      this.textAnimationState = '*';
     }
   }
 
