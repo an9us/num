@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { Hpolo011Component } from 'src/app/hpolo/hpolo011/hpolo011.component'; // 確保正確導入
 
 const routes: Routes = [
-  { path: 'index', component: Hpolo011Component } // 配置路由
+  { path: '', component: Hpolo011Component } // 配置路由
 ];
 
 @NgModule({
