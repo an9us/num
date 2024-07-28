@@ -11,7 +11,7 @@
     </div>
   </section>
 
-  <section id="main-content">
+  <section id="main-content" class="main-content">
     <!-- 背景動画 -->
     <div class="hero-bg">
         <video id="background-video" autoplay muted loop playsinline>
@@ -76,20 +76,23 @@
     <!-- 01.メインビジュアル -->
     <section class="main-visual d-flex align-items-center">
         <div class="container text-white">
-        <div class="row">
-            <div class="col text-center text-container">
+        <div class="row textanimation">
+            <div class="col text-center">
+                <!-- <div class="main-title">第５１期協力会　安全スローガン</div>
+                <div class="main-text">高めよう　技術と心と安全意識</div>
+                <div class="main-text">ルールを守り　安全作業</div> -->
                 <div class="main-title">
-                    <div [@textAnimation]="textAnimationState">
+                    <div [@textAnimation]>
                     <span *ngFor="let char of splitText1">{{ char }}</span>
                     </div>
                 </div>
                 <div class="main-text">
-                    <div [@textAnimation]="textAnimationState">
+                    <div [@textAnimation]>
                     <span *ngFor="let char of splitText2">{{ char }}</span>
                     </div>
                 </div>
                 <div class="main-text">
-                    <div [@textAnimation]="textAnimationState">
+                    <div [@textAnimation]>
                     <span *ngFor="let char of splitText3">{{ char }}</span>
                     </div>
                 </div>

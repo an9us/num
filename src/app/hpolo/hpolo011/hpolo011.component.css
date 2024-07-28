@@ -54,17 +54,17 @@
     background-color: var(--gray-bg-color);
   }
 /* ローディングアニメーション */
-#main-content {
+/* #main-content {
+  display: none;
   opacity: 0;
-  transition: opacity .5s ease-in;
-  visibility: hidden;
-}
+  transition: opacity 2s ease-in;
+} */
   #loading-screen {
     position: fixed;
     width: 100%;
     height: 100%;
     background-color: #ffffff;
-    transition: opacity .5s ease-out;
+    transition: opacity 1.5s ease-out;
     opacity: 1;
   }
   
