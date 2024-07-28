@@ -53,12 +53,18 @@
   .bg-gray {
     background-color: var(--gray-bg-color);
   }
+/* ローディングアニメーション */
+#main-content {
+  opacity: 0;
+  transition: opacity .5s ease-in;
+  visibility: hidden;
+}
   #loading-screen {
     position: fixed;
     width: 100%;
     height: 100%;
     background-color: #ffffff;
-    transition: opacity 1.5s ease-out;
+    transition: opacity .5s ease-out;
     opacity: 1;
   }
   

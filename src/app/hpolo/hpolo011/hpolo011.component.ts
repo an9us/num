@@ -20,14 +20,24 @@ import { trigger, state, style, transition, animate, query, stagger } from '@ang
         }))
       ])
     ]),
+    // trigger('textAnimation', [
+    //   transition('* => *', [
+    //     query('span', [
+    //       style({ opacity: 0, transform: 'translateY(20px)' }), // 初期状態
+    //       stagger(100, [
+    //         animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' })) // 終了状態
+    //       ])
+    //     ])
+    //   ])
+    // ])
     trigger('textAnimation', [
-      transition('* => *', [
+      transition(':enter', [
         query('span', [
-          style({ opacity: 0, transform: 'translateY(20px)' }), // 初期状態
+          style({ opacity: 0, transform: 'translateY(20px)' }),
           stagger(100, [
-            animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' })) // 終了状態
+            animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
           ])
-        ])
+        ], { optional: true })
       ])
     ])
   ]
@@ -64,6 +74,10 @@ export class Hpolo011Component implements OnInit, AfterViewInit, OnDestroy {
   // ビューが初期化された後に呼ばれる
   ngAfterViewInit(): void {
     this.loadResources();
+  this.hideLoadingScreen().then(() => {
+    // hideLoadingScreen 完成後觸發 textAnimation
+    this.triggerTextAnimation();
+  });
   }
 
   // リソースを読み込み、ビデオの再生をチェックする
@@ -118,24 +132,64 @@ export class Hpolo011Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ローディング画面を非表示にする
-  hideLoadingScreen() {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-      loadingScreen.style.opacity = '0';
-      setTimeout(() => {
-        if (loadingScreen) {
-          loadingScreen.style.display = 'none';
-        }
-        this.isLoadingComplete = true; // 设置加载完成标志
-        this.triggerTextAnimation(); // 触发文本动画
-      }, 2000); // アニメーションが完了した後に非表示にする
-    }
+  hideLoadingScreen(): Promise<void> {
+    return new Promise((resolve) => {
+      const loadingScreen = document.getElementById('loading-screen');
+      const mainContent = document.getElementById('main-content');
+      const textContainer = document.querySelector('.text-container') as HTMLElement;
+      
+      if (loadingScreen && mainContent) {
+        // 開始淡出加載屏幕
+        loadingScreen.style.opacity = '0';
+        
+        setTimeout(() => {
+          // 隱藏加載屏幕
+          if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+          }
+          
+          // 設置主內容為可見，但仍然透明
+          mainContent.style.visibility = 'visible';
+          mainContent.style.opacity = '0';
+          
+          // 確保文字容器初始狀態是不可見的
+          if (textContainer) {
+            textContainer.style.visibility = 'hidden';
+            textContainer.style.opacity = '0';
+          }
+          
+          // 使用 requestAnimationFrame 來確保 DOM 更新
+          requestAnimationFrame(() => {
+            // 淡入主內容
+            mainContent.style.transition = 'opacity 0.5s ease-in';
+            mainContent.style.opacity = '1';
+            
+            // 等待主內容淡入完成後再解析 Promise
+            setTimeout(() => {
+              this.isLoadingComplete = true;
+              
+              // 再次使用 requestAnimationFrame 以確保所有樣式更新已應用
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            }, 500); // 與主內容的淡入時間相匹配
+          });
+        }, 1500); // 等待加載屏幕淡出動畫完成
+      } else {
+        // 如果元素不存在，立即解決 Promise
+        console.warn('Loading screen or main content element not found');
+        resolve();
+      }
+    });
   }
+
   // テキストアニメーションをトリガーする
   triggerTextAnimation() {
-    if (this.isLoadingComplete) {
-      this.textAnimationState = '*';
+    this.textAnimationState = '*';
+    const textContainer = document.querySelector('.text-container') as HTMLElement;
+    if (textContainer) {
+      textContainer.style.visibility = 'visible';
+      textContainer.style.opacity = '1';
     }
   }
 
